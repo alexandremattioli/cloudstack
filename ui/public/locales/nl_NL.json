@@ -1088,7 +1088,7 @@
 "label.succeeded": "Geslaagd",
 "label.sunday": "Zondag",
 "label.supportedservices": "Geondersteunde Diensten",
-"label.supportspublicaccess": "Supports Public Access",
+"label.supportspublicaccess": "Supports External Access",
 "label.supportsstrechedl2subnet": "Ondersteund Streched L2 Subnet",
 "label.suspend.project": "Pauzeer Project",
 "label.switch.type": "Switch Type",
