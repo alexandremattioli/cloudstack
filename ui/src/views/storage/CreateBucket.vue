@@ -115,7 +115,7 @@ export default {
   },
   created () {
     this.initForm()
-    this.policyList = ['Public', 'Private']
+    this.policyList = ['External', 'Private']
     this.fetchData()
   },
   methods: {

@@ -104,7 +104,7 @@ export default {
       args: ['traffictype', 'physicalnetworkid', 'isolationmethod'],
       mapping: {
         traffictype: {
-          options: ['Public', 'Guest', 'Management', 'Storage']
+          options: ['External', 'Guest', 'Management', 'Storage']
         },
         physicalnetworkid: {
           value: (record) => { return record.id }
