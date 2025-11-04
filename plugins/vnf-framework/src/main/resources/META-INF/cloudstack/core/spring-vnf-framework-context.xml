@@ -49,7 +49,10 @@
 
     <!-- Dictionary Parser -->
     <bean id="vnfDictionaryParser" class="org.apache.cloudstack.vnf.dictionary.VnfDictionaryParser" />
-
+    
+    <!-- Plugin Service (API Command Registration) -->
+    <bean id="vnfFrameworkPluginService" class="org.apache.cloudstack.vnf.VnfFrameworkPluginService" />
+    
     <!-- Network Element Provider (placeholder for future implementation) -->
     <!--
     <bean id="vnfNetworkElement" class="org.apache.cloudstack.vnf.provider.VnfNetworkElement" />
