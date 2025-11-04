@@ -33,5 +33,10 @@
     <!-- DAOs -->
     <bean id="vnfInstanceDao" class="org.apache.cloudstack.vnf.dao.VnfInstanceDaoImpl"/>
     <bean id="vnfTemplateDao" class="org.apache.cloudstack.vnf.dao.VnfTemplateDaoImpl"/>
+    <bean id="vnfOperationDao" class="org.apache.cloudstack.vnf.dao.VnfOperationDaoImpl"/>
+    <bean id="vnfDeviceDao" class="org.apache.cloudstack.vnf.dao.VnfDeviceDaoImpl"/>
+
+    <!-- Services -->
+    <bean id="vnfService" class="org.apache.cloudstack.vnf.service.VnfServiceImpl"/>
 
 </beans>
