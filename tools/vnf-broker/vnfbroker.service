@@ -1,0 +1,31 @@
+[Unit]
+Description=VNF Broker Service for CloudStack
+Documentation=https://cloudstack.apache.org/
+After=network.target redis.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/vnfbroker
+ExecStart=/usr/bin/python3 /opt/vnfbroker/vnf_broker.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment="PYTHONUNBUFFERED=1"
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Logging
+SyslogIdentifier=vnfbroker
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

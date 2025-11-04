@@ -1,0 +1,12 @@
+# VNF Broker Dependencies
+# Python 3.8+ required
+
+Flask==3.0.0
+Werkzeug==3.0.1
+requests==2.31.0
+paramiko==3.4.0
+PyJWT==2.8.0
+cryptography==41.0.7
+
+# Optional but recommended
+redis==5.0.1
