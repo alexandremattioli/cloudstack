@@ -47,10 +47,8 @@
     <bean id="vnfReconciliationLogDao" class="org.apache.cloudstack.vnf.dao.VnfReconciliationLogDaoImpl" />
     <bean id="vnfBrokerAuditDao" class="org.apache.cloudstack.vnf.dao.VnfBrokerAuditDaoImpl" />
 
-    <!-- Dictionary Parser (placeholder for future implementation) -->
-    <!--
-    <bean id="vnfDictionaryParser" class="org.apache.cloudstack.vnf.dictionary.VnfDictionaryParserImpl" />
-    -->
+    <!-- Dictionary Parser -->
+    <bean id="vnfDictionaryParser" class="org.apache.cloudstack.vnf.dictionary.VnfDictionaryParser" />
 
     <!-- Network Element Provider (placeholder for future implementation) -->
     <!--
