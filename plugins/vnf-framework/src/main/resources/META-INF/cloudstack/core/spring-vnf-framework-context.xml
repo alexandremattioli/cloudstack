@@ -1,0 +1,60 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        VNF Framework Plugin Spring Configuration
+        Configures beans for Virtual Network Function integration
+    -->
+
+    <!-- Enable component scanning for VNF framework packages -->
+    <context:component-scan base-package="org.apache.cloudstack.vnf" />
+    
+    <!-- Enable annotation-driven dependency injection -->
+    <context:annotation-config />
+
+    <!-- VNF Service -->
+    <bean id="vnfService" class="org.apache.cloudstack.vnf.service.VnfServiceImpl" />
+
+    <!-- VNF Broker Client -->
+    <bean id="vnfBrokerClient" class="org.apache.cloudstack.vnf.client.VnfBrokerClient" />
+
+    <!-- DAO Beans (auto-discovered via @Component, but can be explicitly defined) -->
+    <bean id="vnfDictionaryDao" class="org.apache.cloudstack.vnf.dao.VnfDictionaryDaoImpl" />
+    <bean id="vnfApplianceDao" class="org.apache.cloudstack.vnf.dao.VnfApplianceDaoImpl" />
+    <bean id="vnfReconciliationLogDao" class="org.apache.cloudstack.vnf.dao.VnfReconciliationLogDaoImpl" />
+    <bean id="vnfBrokerAuditDao" class="org.apache.cloudstack.vnf.dao.VnfBrokerAuditDaoImpl" />
+
+    <!-- Dictionary Parser (placeholder for future implementation) -->
+    <!--
+    <bean id="vnfDictionaryParser" class="org.apache.cloudstack.vnf.dictionary.VnfDictionaryParserImpl" />
+    -->
+
+    <!-- Network Element Provider (placeholder for future implementation) -->
+    <!--
+    <bean id="vnfNetworkElement" class="org.apache.cloudstack.vnf.provider.VnfNetworkElement" />
+    -->
+
+</beans>
