@@ -39,4 +39,7 @@
     <!-- Services -->
     <bean id="vnfService" class="org.apache.cloudstack.vnf.service.VnfServiceImpl"/>
 
+    <!-- Network Element Provider -->
+    <bean id="vnfNetworkElement" class="org.apache.cloudstack.vnf.provider.VnfNetworkElement"/>
+
 </beans>
