@@ -280,4 +280,64 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
             return null;
         }
     }
+    @Override
+    public org.apache.cloudstack.vnf.VnfConnectivityResult testVnfConnectivity(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement testVnfConnectivity
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public org.apache.cloudstack.vnf.VnfReconciliationResult reconcileVnfNetwork(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement reconcileVnfNetwork
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public String uploadVnfDictionary(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement uploadVnfDictionary
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public java.util.List<org.apache.cloudstack.vnf.VnfDictionary> listVnfDictionaries(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement listVnfDictionaries
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public String createFirewallRule(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement createFirewallRule
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public String deleteVnfFirewallRule(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement deleteVnfFirewallRule
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public String updateVnfFirewallRule(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement updateVnfFirewallRule
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public String createVnfNATRule(Object cmd) throws com.cloud.exception.CloudException {
+        // TODO: Implement createVnfNATRule
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public org.apache.cloudstack.vnf.VnfConnectivityResult testConnectivity(Long vnfApplianceId) throws com.cloud.exception.CloudException {
+        // TODO: Implement testConnectivity
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public org.apache.cloudstack.vnf.VnfReconciliationResult reconcileNetwork(Long networkId) throws com.cloud.exception.CloudException {
+        // TODO: Implement reconcileNetwork
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
 }

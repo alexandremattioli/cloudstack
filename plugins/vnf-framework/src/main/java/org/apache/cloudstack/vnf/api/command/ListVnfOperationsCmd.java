@@ -18,7 +18,6 @@
 package org.apache.cloudstack.vnf.api.command;
 
 import com.cloud.exception.InvalidParameterValueException;
-import com.cloud.exception.CloudException;
 import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;

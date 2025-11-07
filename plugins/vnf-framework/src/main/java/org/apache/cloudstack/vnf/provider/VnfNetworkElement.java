@@ -1,5 +1,6 @@
 package org.apache.cloudstack.vnf.provider;
 
+import java.util.Set;
 import com.cloud.agent.api.to.FirewallRuleTO;
 import com.cloud.deploy.DeployDestination;
 import com.cloud.exception.ConcurrentOperationException;
@@ -297,4 +298,15 @@ public class VnfNetworkElement implements NetworkElement, FirewallServiceProvide
             return null;
         }
     }
+    @Override
+    public boolean verifyServicesCombination(Set<com.cloud.network.Network.Service> services) {
+        // VNF can handle firewall, port forwarding, static NAT, load balancing
+        return true;
+    }
+
+    @Override
+    public com.cloud.network.element.NetworkElement.Provider getProvider() {
+        return com.cloud.network.element.NetworkElement.Provider.VirtualRouter; // TODO: Create VNF provider
+    }
+
 }
