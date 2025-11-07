@@ -1,14 +1,18 @@
 package org.apache.cloudstack.vnf.api.command;
 
-import com.cloud.event.EventTypes;
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InsufficientCapacityException;
 import com.cloud.exception.NetworkRuleConflictException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
 import org.apache.cloudstack.acl.RoleType;
-import org.apache.cloudstack.api.*;
-import org.apache.cloudstack.api.response.FirewallRuleResponse;
+import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.BaseAsyncCmd;
+import org.apache.cloudstack.api.BaseCmd;
+import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.ServerApiException;
+import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.NetworkResponse;
 import org.apache.cloudstack.vnf.api.response.VnfFirewallRuleResponse;
 import org.apache.cloudstack.vnf.service.VnfService;
@@ -164,8 +168,8 @@ public class CreateVnfFirewallRuleCmd extends BaseAsyncCmd {
     /////////////////////////////////////////////////////
 
     @Override
-    public void execute() throws ResourceUnavailableException, InsufficientCapacityException, 
-                                  ServerApiException, ConcurrentOperationException, 
+    public void execute() throws ResourceUnavailableException, InsufficientCapacityException,
+                                  ServerApiException, ConcurrentOperationException,
                                   ResourceAllocationException, NetworkRuleConflictException {
         try {
             VnfFirewallRuleResponse response = vnfService.createFirewallRule(this);

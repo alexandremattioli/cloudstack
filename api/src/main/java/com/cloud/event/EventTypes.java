@@ -852,6 +852,10 @@ public class EventTypes {
     // Custom Action
     public static final String EVENT_CUSTOM_ACTION = "CUSTOM.ACTION";
 
+    // VNF Framework Events
+    public static final String EVENT_VNF_NETWORK_RECONCILE = "VNF.NETWORK.RECONCILE";
+    public static final String EVENT_VNF_CONNECTIVITY_TEST = "VNF.CONNECTIVITY.TEST";
+
     static {
 
         // TODO: need a way to force author adding event types to declare the entity details as well, with out braking

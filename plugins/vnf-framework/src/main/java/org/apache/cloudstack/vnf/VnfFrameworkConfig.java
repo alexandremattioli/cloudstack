@@ -1,4 +1,8 @@
 // Licensed to the Apache Software Foundation (ASF) under one
+
+import com.cloud.utils.component.Configurable;
+import org.apache.cloudstack.config.Configuration;
+import org.apache.cloudstack.framework.config.ConfigKey;
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -17,11 +21,7 @@
 
 package org.apache.cloudstack.vnf;
 
-import org.apache.cloudstack.framework.config.ConfigKey;
-import org.apache.cloudstack.framework.config.Configurable;
-
 public class VnfFrameworkConfig implements Configurable {
-
     public static final ConfigKey<Boolean> VnfFrameworkEnabled = new ConfigKey<>(
             "Advanced",
             Boolean.class,
@@ -30,7 +30,6 @@ public class VnfFrameworkConfig implements Configurable {
             "Enable VNF Framework for managing Virtual Network Functions",
             true
     );
-
     public static final ConfigKey<Integer> VnfHealthCheckInterval = new ConfigKey<>(
             "Advanced",
             Integer.class,
@@ -39,7 +38,6 @@ public class VnfFrameworkConfig implements Configurable {
             "VNF health check interval in seconds",
             true
     );
-
     public static final ConfigKey<Integer> VnfMaxRetries = new ConfigKey<>(
             "Advanced",
             Integer.class,
@@ -48,12 +46,10 @@ public class VnfFrameworkConfig implements Configurable {
             "Maximum retries for VNF operations",
             true
     );
-
     @Override
     public String getConfigComponentName() {
         return VnfFrameworkConfig.class.getSimpleName();
     }
-
     @Override
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey<?>[] {

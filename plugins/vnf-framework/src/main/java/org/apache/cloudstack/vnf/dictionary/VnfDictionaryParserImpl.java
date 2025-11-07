@@ -9,6 +9,7 @@ import org.apache.cloudstack.vnf.DictionaryParseException;
 import org.apache.cloudstack.vnf.DictionaryValidationResult;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
+import com.cloud.exception.CloudException;
 
 import java.util.Map;
 import java.util.HashMap;
