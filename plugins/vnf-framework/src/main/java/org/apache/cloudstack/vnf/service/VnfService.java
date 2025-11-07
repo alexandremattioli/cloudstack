@@ -18,171 +18,47 @@
 package org.apache.cloudstack.vnf.service;
 
 import com.cloud.exception.CloudException;
-import com.cloud.network.Network;
-import org.apache.cloudstack.vnf.entity.VnfApplianceVO;
+import org.apache.cloudstack.vnf.api.command.*;
+import org.apache.cloudstack.vnf.api.response.*;
+
 import org.apache.cloudstack.vnf.entity.VnfDictionaryVO;
-import org.apache.cloudstack.vnf.entity.VnfReconciliationLogVO;
+import org.apache.cloudstack.vnf.entity.VnfInstanceVO;
+import org.apache.cloudstack.vnf.VnfConnectivityResult;
+import org.apache.cloudstack.vnf.VnfReconciliationResult;
 
 import java.util.List;
 
 /**
- * VnfService - Main service interface for VNF Framework operations
+ * VnfService - Core service interface for VNF Framework operations.
+ * Aligned with API command contract for clean design.
  */
 public interface VnfService {
-    
-    // =====================================================
+
     // Dictionary Management
-    // =====================================================
-    
-    /**
-     * Create or update a VNF dictionary
-     */
-    VnfDictionaryVO createOrUpdateDictionary(Long templateId, Long networkId, String name, String yamlContent) throws CloudException;
-    
-    /**
-     * Get dictionary for a template or network
-     * Network-specific dictionary takes precedence over template dictionary
-     */
-    VnfDictionaryVO getDictionary(Long templateId, Long networkId) throws CloudException;
-    
-    /**
-     * Delete a dictionary by UUID
-     */
-    boolean deleteDictionary(String uuid) throws CloudException;
-    
-    /**
-     * List all active dictionaries
-     */
-    List<VnfDictionaryVO> listDictionaries();
-    
-    /**
-     * Parse and validate dictionary YAML
-     */
-    boolean validateDictionary(String yamlContent) throws CloudException;
-    
-    // =====================================================
-    // VNF Appliance Management
-    // =====================================================
-    
-    /**
-     * Deploy a VNF appliance for a network
-     */
-    VnfApplianceVO deployVnfAppliance(Long networkId, Long templateId, Long vmInstanceId) throws CloudException;
-    
-    /**
-     * Get VNF appliance for a network
-     */
-    VnfApplianceVO getVnfApplianceForNetwork(Long networkId);
-    
-    /**
-     * Get VNF appliance by UUID
-     */
-    VnfApplianceVO getVnfAppliance(String uuid);
-    
-    /**
-     * Update appliance state
-     */
-    VnfApplianceVO updateApplianceState(Long applianceId, VnfApplianceVO.VnfState state) throws CloudException;
-    
-    /**
-     * Update appliance health status
-     */
-    VnfApplianceVO updateHealthStatus(Long applianceId, VnfApplianceVO.HealthStatus status) throws CloudException;
-    
-    /**
-     * List all active appliances
-     */
-    List<VnfApplianceVO> listAppliances();
-    
-    /**
-     * List appliances by state
-     */
-    List<VnfApplianceVO> listAppliancesByState(VnfApplianceVO.VnfState state);
-    
-    /**
-     * Destroy a VNF appliance
-     */
-    boolean destroyVnfAppliance(Long applianceId) throws CloudException;
-    
-    // =====================================================
-    // Health Check Operations
-    // =====================================================
-    
-    /**
-     * Perform health check on a VNF appliance
-     */
-    boolean performHealthCheck(Long applianceId) throws CloudException;
-    
-    /**
-     * Perform health checks on all running appliances
-     */
-    List<VnfApplianceVO> performHealthChecks();
-    
-    /**
-     * Get appliances with stale last contact time
-     */
-    List<VnfApplianceVO> getStaleAppliances(int minutesStale);
-    
-    // =====================================================
-    // Reconciliation Operations
-    // =====================================================
-    
-    /**
-     * Reconcile a network's rules with VNF device
-     * @param networkId Network to reconcile
-     * @param dryRun If true, only detect drift without fixing
-     * @return Reconciliation log
-     */
-    VnfReconciliationLogVO reconcileNetwork(Long networkId, boolean dryRun) throws CloudException;
-    
-    /**
-     * Get latest reconciliation result for a network
-     */
-    VnfReconciliationLogVO getLatestReconciliation(Long networkId);
-    
-    /**
-     * List all reconciliations for a network
-     */
-    List<VnfReconciliationLogVO> listReconciliations(Long networkId);
-    
-    /**
-     * List reconciliations with drift detected
-     */
-    List<VnfReconciliationLogVO> listDriftReconciliations();
-    
-    // =====================================================
+    VnfDictionaryResponse uploadVnfDictionary(UploadVnfDictionaryCmd cmd) throws CloudException;
+    List<VnfDictionaryResponse> listVnfDictionaries(ListVnfDictionariesCmd cmd);
+
     // Firewall Rule Operations
-    // =====================================================
-    
-    /**
-     * Apply a firewall rule to VNF device
-     * @param ruleId CloudStack firewall rule ID
-     * @return External ID from VNF device
-     */
-    String applyFirewallRule(Long ruleId) throws CloudException;
-    
-    /**
-     * Delete a firewall rule from VNF device
-     * @param ruleId CloudStack firewall rule ID
-     */
-    boolean deleteFirewallRule(Long ruleId) throws CloudException;
-    
-    /**
-     * List firewall rules on VNF device
-     */
-    List<String> listFirewallRules(Long networkId) throws CloudException;
-    
-    // =====================================================
-    // Query Operations
-    // =====================================================
-    
-    /**
-     * Get VNF operation audit logs
-     */
-    List<Object> getOperationAuditLogs(Long applianceId, String operation, int limit);
-    
-    /**
-     * Get failed operations for troubleshooting
-     */
-    List<Object> getFailedOperations(Long applianceId, int limit);
+    VnfFirewallRuleResponse createFirewallRule(CreateVnfFirewallRuleCmd cmd) throws CloudException;
+    VnfFirewallRuleResponse updateVnfFirewallRule(UpdateVnfFirewallRuleCmd cmd) throws CloudException;
+    boolean deleteVnfFirewallRule(DeleteVnfFirewallRuleCmd cmd) throws CloudException;
+
+    // NAT Rule Operations
+    VnfNATRuleResponse createVnfNATRule(CreateVnfNATRuleCmd cmd) throws CloudException;
+
+    // Connectivity & Health
+    VnfConnectivityResult testVnfConnectivity(TestVnfConnectivityCmd cmd) throws CloudException;
+
+    // Network Reconciliation
+    VnfReconciliationResult reconcileVnfNetwork(ReconcileVnfNetworkCmd cmd) throws CloudException;
+
+    // Operation Tracking
+    List<VnfOperationResponse> listAllOperations(ListVnfOperationsCmd cmd);
+    List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listOperationsByState(org.apache.cloudstack.vnf.entity.VnfOperationVO.State state);
+    List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listOperationsByVnfInstance(Long vnfInstanceId);
+    List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listOperationsByVnfInstanceAndState(Long vnfInstanceId, org.apache.cloudstack.vnf.entity.VnfOperationVO.State state);
+    org.apache.cloudstack.vnf.entity.VnfOperationVO findOperationByRuleId(String ruleId);
+
+    // VNF Instance Management
+    VnfInstanceVO getVnfInstance(Long vnfInstanceId) throws CloudException;
 }

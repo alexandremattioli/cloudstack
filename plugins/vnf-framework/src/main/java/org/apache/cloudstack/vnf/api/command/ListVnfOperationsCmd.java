@@ -30,7 +30,7 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.vnf.api.response.VnfOperationResponse;
-import org.apache.cloudstack.vnf.dao.VnfOperationVO;
+import org.apache.cloudstack.vnf.entity.VnfOperationVO;
 import org.apache.cloudstack.vnf.service.VnfService;
 
 import javax.inject.Inject;
