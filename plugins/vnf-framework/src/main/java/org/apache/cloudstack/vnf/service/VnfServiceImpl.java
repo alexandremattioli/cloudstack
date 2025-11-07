@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Component
 public class VnfServiceImpl extends ManagerBase implements VnfService {
-    private static final Logger LOGGER = Logger.getLogger(VnfServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(VnfServiceImpl.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Inject
