@@ -1,5 +1,6 @@
 package org.apache.cloudstack.vnf.dictionary;
 
+import org.apache.cloudstack.vnf.AuthType;
 import org.apache.cloudstack.vnf.VnfDictionary;
 import org.apache.cloudstack.vnf.VnfDictionaryManager;
 import org.apache.cloudstack.vnf.AccessConfig;
