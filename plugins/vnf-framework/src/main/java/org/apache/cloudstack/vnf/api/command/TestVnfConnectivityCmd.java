@@ -7,7 +7,7 @@ import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.SuccessResponse;
-import org.apache.cloudstack.vnf.VnfService;
+import org.apache.cloudstack.vnf.service.VnfService;
 import org.apache.cloudstack.vnf.api.response.VnfInstanceResponse;
 
 import javax.inject.Inject;
