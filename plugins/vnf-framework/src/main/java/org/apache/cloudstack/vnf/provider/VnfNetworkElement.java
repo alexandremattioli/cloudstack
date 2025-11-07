@@ -124,7 +124,6 @@ public class VnfNetworkElement implements NetworkElement, FirewallServiceProvide
         return true;
     }
 
-    @Override
     public boolean verifyServicesCombination(List<String> services) {
         // VNF can provide Firewall, SourceNat, PortForwarding, StaticNat, Vpn
         return true;
@@ -313,6 +312,54 @@ public class VnfNetworkElement implements NetworkElement, FirewallServiceProvide
     public java.util.Map<com.cloud.network.Network.Service, java.util.Map<com.cloud.network.Network.Capability, String>> getCapabilities() {
         // VNF provides firewall, port forwarding, static NAT, load balancing
         return new java.util.HashMap<>(); // TODO: Implement capabilities
+    }
+
+    @Override
+    public boolean stop() {
+        // Cleanup VNF element
+        return true;
+    }
+
+    @Override
+    public boolean start() {
+        // Initialize VNF element
+        return true;
+    }
+
+    @Override
+    public boolean configure(String name, java.util.Map<String, Object> params) {
+        // Configure VNF element
+        return true;
+    }
+
+    @Override
+    public void setRunLevel(int level) {
+        // Set run level
+    }
+
+    @Override
+    public int getRunLevel() {
+        return 0;
+    }
+
+    @Override
+    public java.util.Map<String, Object> getConfigParams() {
+        return new java.util.HashMap<>();
+    }
+
+    @Override
+    public void setConfigParams(java.util.Map<String, Object> params) {
+        // Set config params
+    }
+
+    @Override
+    public String getName() {
+        return "VnfNetworkElement";
+    }
+
+    @Override
+    public void setName(String name) {
+        // Set name
     }
 
 }
