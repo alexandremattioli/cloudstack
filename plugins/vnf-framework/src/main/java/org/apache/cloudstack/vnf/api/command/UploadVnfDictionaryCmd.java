@@ -1,4 +1,8 @@
 package org.apache.cloudstack.vnf.api.command;
+import org.apache.cloudstack.api.ServerApiException;
+import org.apache.cloudstack.vnf.api.response.VnfDictionaryResponse;
+import com.cloud.exception.CloudException;
+import org.apache.cloudstack.api.ApiErrorCode;
 
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
@@ -72,17 +76,14 @@ public class UploadVnfDictionaryCmd extends BaseCmd {
     }
 
     @Override
-    public void execute() {
-        String dictionaryId = vnfService.uploadVnfDictionary(this);
-        SuccessResponse response = new SuccessResponse();
-        response.setSuccess(dictionaryId != null);
-        if (dictionaryId != null) {
-            response.setDisplayText("VNF dictionary uploaded successfully: " + dictionaryId);
-        } else {
-            response.setDisplayText("VNF dictionary upload failed");
+    public void execute() throws ServerApiException {
+        try {
+            VnfDictionaryResponse dictionaryResponse = vnfService.uploadVnfDictionary(this);
+            dictionaryResponse.setResponseName(getCommandName());
+            setResponseObject(dictionaryResponse);
+        } catch (CloudException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
         }
-        response.setResponseName(getCommandName());
-        setResponseObject(response);
     }
 
     @Override

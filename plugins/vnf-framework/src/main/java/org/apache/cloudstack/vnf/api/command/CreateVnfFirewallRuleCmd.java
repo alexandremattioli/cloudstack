@@ -1,4 +1,6 @@
 package org.apache.cloudstack.vnf.api.command;
+import com.cloud.event.EventTypes;
+import com.cloud.user.Account;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InsufficientCapacityException;

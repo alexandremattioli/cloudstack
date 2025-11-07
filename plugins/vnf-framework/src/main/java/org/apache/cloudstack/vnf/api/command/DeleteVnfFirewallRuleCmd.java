@@ -1,7 +1,12 @@
 package org.apache.cloudstack.vnf.api.command;
 import com.cloud.event.EventTypes;
+import com.cloud.user.Account;
+import com.cloud.event.EventTypes;
+import com.cloud.user.Account;
 
 import com.cloud.exception.ConcurrentOperationException;
+import com.cloud.exception.CloudException;
+import org.apache.cloudstack.api.ApiErrorCode;
 import com.cloud.exception.ResourceUnavailableException;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
@@ -59,11 +64,15 @@ public class DeleteVnfFirewallRuleCmd extends BaseAsyncCmd {
     }
 
     @Override
-    public void execute() throws ResourceUnavailableException, ConcurrentOperationException {
-        boolean result = vnfService.deleteVnfFirewallRule(this);
-        SuccessResponse response = new SuccessResponse(getCommandName());
-        response.setSuccess(result);
-        this.setResponseObject(response);
+    public void execute() throws ResourceUnavailableException, ConcurrentOperationException, ServerApiException {
+        try {
+            boolean result = vnfService.deleteVnfFirewallRule(this);
+            SuccessResponse response = new SuccessResponse(getCommandName());
+            response.setSuccess(result);
+            this.setResponseObject(response);
+        } catch (CloudException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
+        }
     }
 
     @Override
@@ -78,6 +87,6 @@ public class DeleteVnfFirewallRuleCmd extends BaseAsyncCmd {
 
     @Override
     public long getEntityOwnerId() {
-        return getAccountId();
+        return _accountService.getSystemAccount().getAccountId();
     }
 }

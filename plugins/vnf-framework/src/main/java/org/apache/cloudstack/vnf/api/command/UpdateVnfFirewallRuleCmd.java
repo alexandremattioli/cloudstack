@@ -1,17 +1,22 @@
 package org.apache.cloudstack.vnf.api.command;
 import com.cloud.event.EventTypes;
+import com.cloud.user.Account;
+import com.cloud.event.EventTypes;
+import com.cloud.user.Account;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InsufficientCapacityException;
 import com.cloud.exception.NetworkRuleConflictException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
+import com.cloud.exception.CloudException;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.response.SuccessResponse;
@@ -83,10 +88,14 @@ public class UpdateVnfFirewallRuleCmd extends BaseAsyncCmd {
 
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException,
-            ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
-        VnfFirewallRuleResponse response = vnfService.updateVnfFirewallRule(this);
-        response.setResponseName(getCommandName());
-        this.setResponseObject(response);
+                     ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
+        try {
+            VnfFirewallRuleResponse response = vnfService.updateVnfFirewallRule(this);
+            response.setResponseName(getCommandName());
+            this.setResponseObject(response);
+        } catch (CloudException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
+        }
     }
 
     @Override
@@ -101,6 +110,6 @@ public class UpdateVnfFirewallRuleCmd extends BaseAsyncCmd {
 
     @Override
     public long getEntityOwnerId() {
-        return getAccountId();
+        return _accountService.getSystemAccount().getAccountId();
     }
 }

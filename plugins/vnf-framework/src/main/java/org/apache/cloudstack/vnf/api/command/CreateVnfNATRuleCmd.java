@@ -1,7 +1,11 @@
 package org.apache.cloudstack.vnf.api.command;
 import com.cloud.event.EventTypes;
+import com.cloud.user.Account;
+import com.cloud.event.EventTypes;
+import com.cloud.user.Account;
 
 import com.cloud.exception.ConcurrentOperationException;
+import com.cloud.exception.CloudException;
 import com.cloud.exception.InsufficientCapacityException;
 import com.cloud.exception.NetworkRuleConflictException;
 import com.cloud.exception.ResourceAllocationException;
@@ -123,9 +127,13 @@ public class CreateVnfNATRuleCmd extends BaseAsyncCmd {
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException,
             ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
-        VnfNATRuleResponse response = vnfService.createVnfNATRule(this);
-        response.setResponseName(getCommandName());
-        this.setResponseObject(response);
+        try {
+            VnfNATRuleResponse response = vnfService.createVnfNATRule(this);
+            response.setResponseName(getCommandName());
+            this.setResponseObject(response);
+        } catch (CloudException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
+        }
     }
 
     @Override
@@ -140,6 +148,6 @@ public class CreateVnfNATRuleCmd extends BaseAsyncCmd {
 
     @Override
     public long getEntityOwnerId() {
-        return getAccountId();
+        return _accountService.getSystemAccount().getAccountId();
     }
 }

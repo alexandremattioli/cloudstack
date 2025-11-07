@@ -138,7 +138,7 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
     // ==================================================================
 
     @Override
-    public List<VnfOperationResponse> listAllOperations(ListVnfOperationsCmd cmd) {
+    public List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listAllOperations(ListVnfOperationsCmd cmd) {
         LOGGER.info("listAllOperations called - implementing per Methodology step 7");
         // TODO: Step 7 - Query operations with filters
         return new ArrayList<>();

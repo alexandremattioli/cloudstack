@@ -1,4 +1,8 @@
 package org.apache.cloudstack.vnf.api.command;
+import org.apache.cloudstack.api.ServerApiException;
+import org.apache.cloudstack.vnf.VnfConnectivityResult;
+import com.cloud.exception.CloudException;
+import org.apache.cloudstack.api.ApiErrorCode;
 
 import com.cloud.event.EventTypes;
 import org.apache.cloudstack.acl.RoleType;
@@ -50,13 +54,17 @@ public class TestVnfConnectivityCmd extends BaseAsyncCmd {
     }
 
     @Override
-    public void execute() {
-        String result = vnfService.testVnfConnectivity(this);
-        SuccessResponse response = new SuccessResponse();
-        response.setSuccess(result != null);
-        response.setDisplayText(result != null ? result : "Connectivity test failed");
-        response.setResponseName(getCommandName());
-        setResponseObject(response);
+    public void execute() throws ServerApiException {
+        try {
+            VnfConnectivityResult result = vnfService.testVnfConnectivity(this);
+            SuccessResponse response = new SuccessResponse();
+            response.setSuccess(result != null);
+            response.setDisplayText(result != null ? result.toString() : "Connectivity test failed");
+            response.setResponseName(getCommandName());
+            setResponseObject(response);
+        } catch (CloudException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
+        }
     }
 
     @Override
@@ -81,6 +89,10 @@ public class TestVnfConnectivityCmd extends BaseAsyncCmd {
     }
 
     private Long getEntityOwnerAccountId() {
-        return vnfService.getVnfInstance(id).getAccountId();
+        try {
+            return vnfService.getVnfInstance(id).getAccountId();
+        } catch (CloudException e) {
+            return _accountService.getSystemAccount().getAccountId();
+        }
     }
 }

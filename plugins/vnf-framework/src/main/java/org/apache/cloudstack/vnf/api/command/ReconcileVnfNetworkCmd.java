@@ -1,4 +1,8 @@
 package org.apache.cloudstack.vnf.api.command;
+import org.apache.cloudstack.api.ServerApiException;
+import org.apache.cloudstack.vnf.VnfReconciliationResult;
+import com.cloud.exception.CloudException;
+import org.apache.cloudstack.api.ApiErrorCode;
 
 import com.cloud.event.EventTypes;
 import org.apache.cloudstack.acl.RoleType;
@@ -51,17 +55,21 @@ public class ReconcileVnfNetworkCmd extends BaseAsyncCmd {
     }
 
     @Override
-    public void execute() {
-        boolean result = vnfService.reconcileVnfNetwork(this);
-        SuccessResponse response = new SuccessResponse();
-        response.setSuccess(result);
-        if (result) {
-            response.setDisplayText("VNF network reconciliation initiated successfully");
-        } else {
-            response.setDisplayText("VNF network reconciliation failed");
+    public void execute() throws ServerApiException {
+        try {
+            VnfReconciliationResult result = vnfService.reconcileVnfNetwork(this);
+            SuccessResponse response = new SuccessResponse();
+            response.setSuccess(result != null);
+            if (result != null) {
+                response.setDisplayText("VNF network reconciliation completed: " + result.toString());
+            } else {
+                response.setDisplayText("VNF network reconciliation failed");
+            }
+            response.setResponseName(getCommandName());
+            setResponseObject(response);
+        } catch (CloudException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
         }
-        response.setResponseName(getCommandName());
-        setResponseObject(response);
     }
 
     @Override

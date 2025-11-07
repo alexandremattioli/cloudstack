@@ -52,6 +52,10 @@ public class VnfOperationVO implements InternalIdentity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
+    @Column(name = "started_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startedAt;
+
     @Column(name = "completed_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date completedAt;
@@ -172,6 +176,14 @@ public class VnfOperationVO implements InternalIdentity {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Date getStartedAt() {
+        return startedAt;
+    }
+
+    public void setStartedAt(Date startedAt) {
+        this.startedAt = startedAt;
     }
 
     public Date getCompletedAt() {

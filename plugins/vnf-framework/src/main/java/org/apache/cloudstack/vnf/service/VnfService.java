@@ -53,7 +53,7 @@ public interface VnfService {
     VnfReconciliationResult reconcileVnfNetwork(ReconcileVnfNetworkCmd cmd) throws CloudException;
 
     // Operation Tracking
-    List<VnfOperationResponse> listAllOperations(ListVnfOperationsCmd cmd);
+    List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listAllOperations(ListVnfOperationsCmd cmd);
     List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listOperationsByState(org.apache.cloudstack.vnf.entity.VnfOperationVO.State state);
     List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listOperationsByVnfInstance(Long vnfInstanceId);
     List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listOperationsByVnfInstanceAndState(Long vnfInstanceId, org.apache.cloudstack.vnf.entity.VnfOperationVO.State state);

@@ -134,7 +134,7 @@ public class ListVnfOperationsCmd extends BaseListCmd {
             }
         } else {
             // No filters - return all (with pagination)
-            operations = vnfService.listAllOperations(this.getStartIndex(), this.getPageSizeVal());
+            operations = vnfService.listAllOperations(this);
         }
 
         // Create response
