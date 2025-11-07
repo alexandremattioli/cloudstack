@@ -12,7 +12,8 @@ import org.apache.cloudstack.vnf.dao.VnfOperationDao;
 import org.apache.cloudstack.vnf.entity.VnfDeviceVO;
 import org.apache.cloudstack.vnf.entity.VnfInstanceVO;
 import org.apache.cloudstack.vnf.entity.VnfOperationVO;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -81,11 +82,11 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
             opHash
         );
         operation.setState(VnfOperationVO.State.Pending.toString());
-        
+
         // Build request payload
         Map<String, Object> requestPayload = buildFirewallRuleRequest(cmd, ruleId);
         operation.setRequestPayload(objectMapper.writeValueAsString(requestPayload));
-        
+
         // Persist operation
         operation = vnfOperationDao.persist(operation);
 
@@ -167,11 +168,11 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
 
         try {
             client.deleteFirewallRule(ruleId);
-            
+
             // Mark operation as removed
             operation.setRemoved(new Date());
             vnfOperationDao.update(operation.getId(), operation);
-            
+
             return true;
         } catch (VnfBrokerClient.VnfBrokerException e) {
             LOGGER.error("Failed to delete firewall rule: " + e.getMessage(), e);
@@ -213,7 +214,7 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(canonical.getBytes(StandardCharsets.UTF_8));
-            
+
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
@@ -239,7 +240,7 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
         response.setVendorRef(operation.getVendorRef());
         response.setErrorCode(operation.getErrorCode());
         response.setErrorMessage(operation.getErrorMessage());
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         response.setCreated(sdf.format(operation.getCreatedAt()));
 
@@ -248,7 +249,7 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
             if (operation.getRequestPayload() != null) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> payload = objectMapper.readValue(
-                    operation.getRequestPayload(), 
+                    operation.getRequestPayload(),
                     Map.class
                 );
                 response.setAction((String) payload.get("action"));

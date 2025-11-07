@@ -22,7 +22,8 @@ import org.apache.cloudstack.vnf.dao.VnfOperationDao;
 import org.apache.cloudstack.vnf.entity.VnfDeviceVO;
 import org.apache.cloudstack.vnf.entity.VnfInstanceVO;
 import org.apache.cloudstack.vnf.entity.VnfOperationVO;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.inject.Inject;
 import java.util.List;
