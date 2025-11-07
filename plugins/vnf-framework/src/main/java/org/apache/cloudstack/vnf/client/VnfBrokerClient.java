@@ -19,7 +19,7 @@ import java.util.Map;
  * Client for communicating with the VNF Broker service running on Virtual Router
  */
 public class VnfBrokerClient {
-    private static final Logger LOGGER = Logger.getLogger(VnfBrokerClient.class);
+    private static final Logger LOGGER = LogManager.getLogger(VnfBrokerClient.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final String brokerUrl;

@@ -33,7 +33,7 @@ import java.util.List;
  * Enables CloudStack to apply network rules to VNF appliances
  */
 public class VnfNetworkElement implements NetworkElement, FirewallServiceProvider {
-    private static final Logger LOGGER = Logger.getLogger(VnfNetworkElement.class);
+    private static final Logger LOGGER = LogManager.getLogger(VnfNetworkElement.class);
 
     @Inject
     private VnfInstanceDao vnfInstanceDao;
