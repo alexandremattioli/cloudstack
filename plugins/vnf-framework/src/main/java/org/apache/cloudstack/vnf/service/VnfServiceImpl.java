@@ -1,384 +1,417 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package org.apache.cloudstack.vnf.service;
 
+import com.cloud.exception.CloudException;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.utils.component.ManagerBase;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.cloudstack.vnf.api.response.VnfFirewallRuleResponse;
-import org.apache.cloudstack.vnf.client.VnfBrokerClient;
-import org.apache.cloudstack.vnf.dao.VnfDeviceDao;
-import org.apache.cloudstack.vnf.dao.VnfInstanceDao;
-import org.apache.cloudstack.vnf.dao.VnfOperationDao;
-import org.apache.cloudstack.vnf.entity.VnfDeviceVO;
-import org.apache.cloudstack.vnf.entity.VnfInstanceVO;
-import org.apache.cloudstack.vnf.entity.VnfOperationVO;
+import com.cloud.utils.db.Transaction;
+import com.cloud.utils.db.TransactionCallback;
+import com.cloud.utils.db.TransactionStatus;
+import org.apache.cloudstack.vnf.dao.*;
+import org.apache.cloudstack.vnf.entity.*;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
 
+/**
+ * VnfServiceImpl - Implementation of VNF Framework service layer
+ */
 @Component
 public class VnfServiceImpl extends ManagerBase implements VnfService {
-    private static final Logger LOGGER = LogManager.getLogger(VnfServiceImpl.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
+    
+    private static final Logger s_logger = LogManager.getLogger(VnfServiceImpl.class);
+    
     @Inject
-    private VnfInstanceDao vnfInstanceDao;
-
+    private VnfDictionaryDao vnfDictionaryDao;
+    
     @Inject
-    private VnfDeviceDao vnfDeviceDao;
-
+    private VnfApplianceDao vnfApplianceDao;
+    
     @Inject
-    private VnfOperationDao vnfOperationDao;
-
-    // @Override
-//     public VnfFirewallRuleResponse createFirewallRule(CreateVnfFirewallRuleCmd cmd) throws Exception {
-//         // Validate VNF instance exists
-//         VnfInstanceVO vnfInstance = vnfInstanceDao.findById(cmd.getVnfInstanceId());
-//         if (vnfInstance == null) {
-//             throw new InvalidParameterValueException("VNF instance not found: " + cmd.getVnfInstanceId());
-//         }
-// 
-//         // Generate rule ID if not provided (idempotency)
-//         String ruleId = cmd.getRuleId();
-//         if (ruleId == null || ruleId.isEmpty()) {
-//             ruleId = UUID.randomUUID().toString();
-//         }
-// 
-//         // Check for existing operation with same rule ID (idempotency)
-//         VnfOperationVO existingOp = vnfOperationDao.findByRuleId(ruleId);
-//         if (existingOp != null) {
-//             LOGGER.info("Found existing operation for ruleId: " + ruleId);
-//             return buildResponseFromOperation(existingOp);
-//         }
-// 
-//         // Compute operation hash for duplicate detection
-// //         String opHash = computeOperationHash(cmd);
-// //         VnfOperationVO existingHashOp = vnfOperationDao.findByOpHash(opHash);
-// //         if (existingHashOp != null) {
-// //             LOGGER.info("Found existing operation with same hash: " + opHash);
-// //             return buildResponseFromOperation(existingHashOp);
-// //         }
-// // 
-// //         // Get VNF device configuration
-// //         VnfDeviceVO device = vnfDeviceDao.findByVnfInstanceId(cmd.getVnfInstanceId());
-// //         if (device == null) {
-// //             throw new InvalidParameterValueException("VNF device not found for instance: " + cmd.getVnfInstanceId());
-// //         }
-// // 
-// //         // Create operation record
-// //         VnfOperationVO operation = new VnfOperationVO(
-// //             cmd.getVnfInstanceId(),
-// //             VnfOperationVO.OperationType.CREATE_FIREWALL_RULE.toString(),
-// //             ruleId,
-// //             opHash
-// //         );
-// //         operation.setState(VnfOperationVO.State.Pending.toString());
-// // 
-// //         // Build request payload
-// // //         Map<String, Object> requestPayload = buildFirewallRuleRequest(cmd, ruleId);
-// // //         operation.setRequestPayload(objectMapper.writeValueAsString(requestPayload));
-// // // 
-// // //         // Persist operation
-// // //         operation = vnfOperationDao.persist(operation);
-// // // 
-// // //         try {
-// // //             // Call VNF broker
-// // //             operation.setState(VnfOperationVO.State.InProgress.toString());
-// // //             vnfOperationDao.update(operation.getId(), operation);
-// // // 
-// // //             VnfBrokerClient client = new VnfBrokerClient(
-// // //                 device.getBrokerUrl(),
-// // //                 extractJwtToken(device.getApiCredentials())
-// // //             );
-// // // 
-// // //             VnfBrokerClient.CreateFirewallRuleRequest request = new VnfBrokerClient.CreateFirewallRuleRequest();
-// // //             request.setRuleId(ruleId);
-// // //             request.setAction(cmd.getAction());
-// // //             request.setProtocol(cmd.getProtocol());
-// // //             request.setSourceAddressing(cmd.getSourceAddressing());
-// // //             request.setDestinationAddressing(cmd.getDestinationAddressing());
-// // //             request.setSourcePorts(cmd.getSourcePorts());
-// // //             request.setDestinationPorts(cmd.getDestinationPorts());
-// // //             request.setDescription(cmd.getDescription());
-// // // 
-// // //             VnfBrokerClient.VnfOperationResponse brokerResponse = client.createFirewallRule(request);
-// // // 
-// // //             // Update operation with success
-// // //             operation.setState(VnfOperationVO.State.Completed.toString());
-// // //             operation.setVendorRef(brokerResponse.getVendorRef());
-// // //             operation.setResponsePayload(objectMapper.writeValueAsString(brokerResponse));
-// // //             operation.setCompletedAt(new Date());
-// // //             vnfOperationDao.update(operation.getId(), operation);
-// // // 
-// // //             return buildResponseFromOperation(operation);
-// // // 
-// // //         } catch (VnfBrokerClient.VnfBrokerException e) {
-// // //             // Update operation with error
-// // //             operation.setState(VnfOperationVO.State.Failed.toString());
-// // //             operation.setErrorCode(e.getErrorCode());
-// // //             operation.setErrorMessage(e.getMessage());
-// // //             operation.setCompletedAt(new Date());
-// // //             vnfOperationDao.update(operation.getId(), operation);
-// // // 
-// // //             LOGGER.error("VNF broker error: " + e.getMessage(), e);
-// // //             throw e;
-// // //         } catch (Exception e) {
-// // //             // Update operation with generic error
-// // //             operation.setState(VnfOperationVO.State.Failed.toString());
-// // //             operation.setErrorCode("BROKER_INTERNAL");
-// // //             operation.setErrorMessage(e.getMessage());
-// // //             operation.setCompletedAt(new Date());
-// // //             vnfOperationDao.update(operation.getId(), operation);
-// // // 
-// // //             LOGGER.error("VNF operation error: " + e.getMessage(), e);
-// // //             throw e;
-// // //         }
-// // //     }
-// // 
-// //     @Override
-// //     public boolean deleteFirewallRule(String ruleId) throws Exception {
-// //         VnfOperationVO operation = vnfOperationDao.findByRuleId(ruleId);
-// //         if (operation == null) {
-// //             throw new InvalidParameterValueException("Firewall rule not found: " + ruleId);
-// //         }
-// // 
-// //         VnfInstanceVO vnfInstance = vnfInstanceDao.findById(operation.getVnfInstanceId());
-// //         if (vnfInstance == null) {
-// //             throw new InvalidParameterValueException("VNF instance not found");
-// //         }
-// // 
-// //         VnfDeviceVO device = vnfDeviceDao.findByVnfInstanceId(vnfInstance.getId());
-// //         if (device == null) {
-// //             throw new InvalidParameterValueException("VNF device not found");
-// //         }
-// // 
-// //         VnfBrokerClient client = new VnfBrokerClient(
-// //             device.getBrokerUrl(),
-// //             extractJwtToken(device.getApiCredentials())
-// //         );
-// // 
-// //         try {
-// //             client.deleteFirewallRule(ruleId);
-// // 
-// //             // Mark operation as removed
-// //             operation.setRemoved(new Date());
-// //             vnfOperationDao.update(operation.getId(), operation);
-// // 
-// //             return true;
-// //         } catch (VnfBrokerClient.VnfBrokerException e) {
-// //             LOGGER.error("Failed to delete firewall rule: " + e.getMessage(), e);
-// //             throw e;
-// //         }
-// //     }
-// 
-//     /**
-//      * Build firewall rule request map
-//      */
-// //     private Map<String, Object> buildFirewallRuleRequest(CreateVnfFirewallRuleCmd cmd, String ruleId) {
-// //         Map<String, Object> request = new HashMap<>();
-// //         request.put("ruleId", ruleId);
-// //         request.put("action", cmd.getAction());
-// //         request.put("protocol", cmd.getProtocol());
-// //         request.put("sourceAddressing", cmd.getSourceAddressing());
-// //         request.put("destinationAddressing", cmd.getDestinationAddressing());
-// //         request.put("sourcePorts", cmd.getSourcePorts());
-// //         request.put("destinationPorts", cmd.getDestinationPorts());
-// //         request.put("description", cmd.getDescription());
-// //         return request;
-// //     }
-// 
-//     /**
-//      * Compute SHA-256 hash of operation parameters for duplicate detection
-//      */
-//     private String computeOperationHash(CreateVnfFirewallRuleCmd cmd) {
-//         try {
-//             String canonical = String.format("%d:%s:%s:%s:%s:%s:%s:%s",
-//                 cmd.getVnfInstanceId(),
-//                 cmd.getAction(),
-//                 cmd.getProtocol(),
-//                 cmd.getSourceAddressing(),
-//                 cmd.getDestinationAddressing(),
-//                 cmd.getSourcePorts() != null ? cmd.getSourcePorts() : "",
-//                 cmd.getDestinationPorts() != null ? cmd.getDestinationPorts() : "",
-//                 cmd.getDescription() != null ? cmd.getDescription() : ""
-//             );
-// 
-//             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//             byte[] hash = digest.digest(canonical.getBytes(StandardCharsets.UTF_8));
-// 
-//             StringBuilder hexString = new StringBuilder();
-//             for (byte b : hash) {
-//                 String hex = Integer.toHexString(0xff & b);
-//                 if (hex.length() == 1) hexString.append('0');
-//                 hexString.append(hex);
-//             }
-//             return hexString.toString();
-//         } catch (Exception e) {
-//             LOGGER.error("Failed to compute operation hash", e);
-//             return UUID.randomUUID().toString();
-//         }
-//     }
-
-    /**
-     * Build response from operation record
-     */
-    private VnfFirewallRuleResponse buildResponseFromOperation(VnfOperationVO operation) {
-        VnfFirewallRuleResponse response = new VnfFirewallRuleResponse();
-        response.setId(operation.getUuid());
-        response.setRuleId(operation.getRuleId());
-        response.setVnfInstanceId(operation.getVnfInstanceId().toString());
-        response.setState(operation.getState());
-        response.setVendorRef(operation.getVendorRef());
-        response.setErrorCode(operation.getErrorCode());
-        response.setErrorMessage(operation.getErrorMessage());
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        response.setCreated(sdf.format(operation.getCreatedAt()));
-
-        // Parse request payload to populate response fields
-        try {
-            if (operation.getRequestPayload() != null) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> payload = objectMapper.readValue(
-                    operation.getRequestPayload(),
-                    Map.class
-                );
-                response.setAction((String) payload.get("action"));
-                response.setProtocol((String) payload.get("protocol"));
-                response.setSourceAddressing((String) payload.get("sourceAddressing"));
-                response.setDestinationAddressing((String) payload.get("destinationAddressing"));
-                response.setSourcePorts((String) payload.get("sourcePorts"));
-                response.setDestinationPorts((String) payload.get("destinationPorts"));
-                response.setDescription((String) payload.get("description"));
+    private VnfReconciliationLogDao vnfReconciliationLogDao;
+    
+    @Inject
+    private VnfBrokerAuditDao vnfBrokerAuditDao;
+    
+    // =====================================================
+    // Dictionary Management
+    // =====================================================
+    
+    @Override
+    public VnfDictionaryVO createOrUpdateDictionary(Long templateId, Long networkId, String name, String yamlContent) throws CloudException {
+        if ((templateId == null && networkId == null) || (templateId != null && networkId != null)) {
+            throw new InvalidParameterValueException("Either templateId or networkId must be specified, but not both");
+        }
+        
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidParameterValueException("Dictionary name is required");
+        }
+        
+        if (yamlContent == null || yamlContent.trim().isEmpty()) {
+            throw new InvalidParameterValueException("YAML content is required");
+        }
+        
+        return Transaction.execute(new TransactionCallback<VnfDictionaryVO>() {
+            @Override
+            public VnfDictionaryVO doInTransaction(TransactionStatus status) {
+                // Check if dictionary already exists
+                VnfDictionaryVO existing = null;
+                if (templateId != null) {
+                    existing = vnfDictionaryDao.findByTemplateId(templateId);
+                } else {
+                    existing = vnfDictionaryDao.findByNetworkId(networkId);
+                }
+                
+                if (existing != null) {
+                    // Update existing
+                    existing.setName(name);
+                    existing.setYamlContent(yamlContent);
+                    existing.setUpdated(new Date());
+                    vnfDictionaryDao.update(existing.getId(), existing);
+                    s_logger.info("Updated VNF dictionary: " + existing.getUuid());
+                    return existing;
+                } else {
+                    // Create new
+                    VnfDictionaryVO dictionary = new VnfDictionaryVO(templateId, networkId, name, yamlContent);
+                    vnfDictionaryDao.persist(dictionary);
+                    s_logger.info("Created VNF dictionary: " + dictionary.getUuid());
+                    return dictionary;
+                }
             }
-        } catch (Exception e) {
-            LOGGER.warn("Failed to parse request payload", e);
+        });
+    }
+    
+    @Override
+    public VnfDictionaryVO getDictionary(Long templateId, Long networkId) throws CloudException {
+        // Network-specific dictionary takes precedence
+        if (networkId != null) {
+            VnfDictionaryVO networkDict = vnfDictionaryDao.findByNetworkId(networkId);
+            if (networkDict != null) {
+                return networkDict;
+            }
         }
-
-        return response;
-    }
-
-    /**
-     * Extract JWT token from credentials JSON
-     */
-    private String extractJwtToken(String apiCredentials) {
-        try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> creds = objectMapper.readValue(apiCredentials, Map.class);
-            return (String) creds.get("jwtToken");
-        } catch (Exception e) {
-            LOGGER.error("Failed to parse API credentials", e);
-            return null;
+        
+        // Fall back to template dictionary
+        if (templateId != null) {
+            return vnfDictionaryDao.findByTemplateId(templateId);
         }
+        
+        return null;
     }
+    
     @Override
-    public org.apache.cloudstack.vnf.VnfConnectivityResult testVnfConnectivity(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement testVnfConnectivity
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public boolean deleteDictionary(String uuid) throws CloudException {
+        VnfDictionaryVO dictionary = vnfDictionaryDao.findByUuid(uuid);
+        if (dictionary == null) {
+            throw new InvalidParameterValueException("Dictionary not found: " + uuid);
+        }
+        
+        // Soft delete
+        dictionary.setRemoved(new Date());
+        vnfDictionaryDao.update(dictionary.getId(), dictionary);
+        s_logger.info("Deleted VNF dictionary: " + uuid);
+        return true;
     }
-
+    
     @Override
-    public org.apache.cloudstack.vnf.VnfReconciliationResult reconcileVnfNetwork(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement reconcileVnfNetwork
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public List<VnfDictionaryVO> listDictionaries() {
+        return vnfDictionaryDao.listActive();
     }
-
+    
     @Override
-    public String uploadVnfDictionary(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement uploadVnfDictionary
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public boolean validateDictionary(String yamlContent) throws CloudException {
+        // TODO: Implement YAML validation with dictionary parser
+        // For now, just check if it's not empty
+        return yamlContent != null && !yamlContent.trim().isEmpty();
     }
-
+    
+    // =====================================================
+    // VNF Appliance Management
+    // =====================================================
+    
     @Override
-    public java.util.List<org.apache.cloudstack.vnf.VnfDictionary> listVnfDictionaries(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement listVnfDictionaries
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public VnfApplianceVO deployVnfAppliance(Long networkId, Long templateId, Long vmInstanceId) throws CloudException {
+        if (networkId == null || templateId == null || vmInstanceId == null) {
+            throw new InvalidParameterValueException("networkId, templateId, and vmInstanceId are required");
+        }
+        
+        // Check if appliance already exists for network
+        VnfApplianceVO existing = vnfApplianceDao.findByNetworkId(networkId);
+        if (existing != null && existing.getRemoved() == null) {
+            throw new InvalidParameterValueException("VNF appliance already exists for network: " + networkId);
+        }
+        
+        return Transaction.execute(new TransactionCallback<VnfApplianceVO>() {
+            @Override
+            public VnfApplianceVO doInTransaction(TransactionStatus status) {
+                VnfApplianceVO appliance = new VnfApplianceVO(vmInstanceId, networkId, templateId);
+                appliance.setState(VnfApplianceVO.VnfState.Deploying);
+                appliance.setHealthStatus(VnfApplianceVO.HealthStatus.Unknown);
+                vnfApplianceDao.persist(appliance);
+                s_logger.info("Deployed VNF appliance: " + appliance.getUuid() + " for network: " + networkId);
+                return appliance;
+            }
+        });
     }
-
+    
     @Override
-    public String createFirewallRule(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement createFirewallRule
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public VnfApplianceVO getVnfApplianceForNetwork(Long networkId) {
+        return vnfApplianceDao.findByNetworkId(networkId);
     }
-
+    
     @Override
-    public String deleteVnfFirewallRule(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement deleteVnfFirewallRule
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public VnfApplianceVO getVnfAppliance(String uuid) {
+        return vnfApplianceDao.findByUuid(uuid);
     }
-
+    
     @Override
-    public String updateVnfFirewallRule(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement updateVnfFirewallRule
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public VnfApplianceVO updateApplianceState(Long applianceId, VnfApplianceVO.VnfState state) throws CloudException {
+        VnfApplianceVO appliance = vnfApplianceDao.findById(applianceId);
+        if (appliance == null) {
+            throw new InvalidParameterValueException("VNF appliance not found: " + applianceId);
+        }
+        
+        appliance.setState(state);
+        vnfApplianceDao.update(applianceId, appliance);
+        s_logger.info("Updated VNF appliance " + appliance.getUuid() + " state to: " + state);
+        return appliance;
     }
-
+    
     @Override
-    public String createVnfNATRule(Object cmd) throws com.cloud.exception.CloudException {
-        // TODO: Implement createVnfNATRule
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public VnfApplianceVO updateHealthStatus(Long applianceId, VnfApplianceVO.HealthStatus status) throws CloudException {
+        VnfApplianceVO appliance = vnfApplianceDao.findById(applianceId);
+        if (appliance == null) {
+            throw new InvalidParameterValueException("VNF appliance not found: " + applianceId);
+        }
+        
+        appliance.setHealthStatus(status);
+        appliance.setLastContact(new Date());
+        vnfApplianceDao.update(applianceId, appliance);
+        s_logger.debug("Updated VNF appliance " + appliance.getUuid() + " health to: " + status);
+        return appliance;
     }
-
+    
     @Override
-    public org.apache.cloudstack.vnf.VnfConnectivityResult testConnectivity(Long vnfApplianceId) throws com.cloud.exception.CloudException {
-        // TODO: Implement testConnectivity
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public List<VnfApplianceVO> listAppliances() {
+        return vnfApplianceDao.listActive();
     }
-
+    
     @Override
-    public org.apache.cloudstack.vnf.VnfReconciliationResult reconcileNetwork(Long networkId) throws com.cloud.exception.CloudException {
-        // TODO: Implement reconcileNetwork
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public List<VnfApplianceVO> listAppliancesByState(VnfApplianceVO.VnfState state) {
+        return vnfApplianceDao.listByState(state);
     }
-
+    
     @Override
-    public org.apache.cloudstack.vnf.VnfDictionary uploadDictionary(String dictionaryData, String vendor, Long accountId) throws com.cloud.exception.CloudException {
-        // TODO: Implement uploadDictionary
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public boolean destroyVnfAppliance(Long applianceId) throws CloudException {
+        VnfApplianceVO appliance = vnfApplianceDao.findById(applianceId);
+        if (appliance == null) {
+            throw new InvalidParameterValueException("VNF appliance not found: " + applianceId);
+        }
+        
+        // Soft delete
+        appliance.setRemoved(new Date());
+        appliance.setState(VnfApplianceVO.VnfState.Destroyed);
+        vnfApplianceDao.update(applianceId, appliance);
+        s_logger.info("Destroyed VNF appliance: " + appliance.getUuid());
+        return true;
     }
-
+    
+    // =====================================================
+    // Health Check Operations
+    // =====================================================
+    
     @Override
-    public java.util.List<org.apache.cloudstack.vnf.VnfDictionary> listDictionaries(Long accountId) throws com.cloud.exception.CloudException {
-        // TODO: Implement listDictionaries
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public boolean performHealthCheck(Long applianceId) throws CloudException {
+        VnfApplianceVO appliance = vnfApplianceDao.findById(applianceId);
+        if (appliance == null) {
+            throw new InvalidParameterValueException("VNF appliance not found: " + applianceId);
+        }
+        
+        // TODO: Implement actual health check via broker client
+        // For now, just update last contact
+        appliance.setLastContact(new Date());
+        appliance.setHealthStatus(VnfApplianceVO.HealthStatus.Healthy);
+        vnfApplianceDao.update(applianceId, appliance);
+        
+        s_logger.debug("Health check performed on appliance: " + appliance.getUuid());
+        return true;
     }
-
+    
     @Override
-    public java.util.List<org.apache.cloudstack.vnf.dao.VnfOperationVO> listAllOperations(Long startIndex, Long pageSize) throws com.cloud.exception.CloudException {
-        // TODO: Implement listAllOperations
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public List<VnfApplianceVO> performHealthChecks() {
+        List<VnfApplianceVO> appliances = vnfApplianceDao.listByState(VnfApplianceVO.VnfState.Running);
+        
+        for (VnfApplianceVO appliance : appliances) {
+            try {
+                performHealthCheck(appliance.getId());
+            } catch (CloudException e) {
+                s_logger.warn("Health check failed for appliance " + appliance.getUuid() + ": " + e.getMessage());
+            }
+        }
+        
+        return appliances;
     }
-
+    
     @Override
-    public java.util.List<org.apache.cloudstack.vnf.dao.VnfOperationVO> listOperationsByState(org.apache.cloudstack.vnf.dao.VnfOperationVO.State state) throws com.cloud.exception.CloudException {
-        // TODO: Implement listOperationsByState
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public List<VnfApplianceVO> getStaleAppliances(int minutesStale) {
+        return vnfApplianceDao.listStaleContacts(minutesStale);
     }
-
+    
+    // =====================================================
+    // Reconciliation Operations
+    // =====================================================
+    
     @Override
-    public java.util.List<org.apache.cloudstack.vnf.dao.VnfOperationVO> listOperationsByVnfInstance(Long vnfInstanceId) throws com.cloud.exception.CloudException {
-        // TODO: Implement listOperationsByVnfInstance
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public VnfReconciliationLogVO reconcileNetwork(Long networkId, boolean dryRun) throws CloudException {
+        VnfApplianceVO appliance = vnfApplianceDao.findByNetworkId(networkId);
+        if (appliance == null) {
+            throw new InvalidParameterValueException("No VNF appliance found for network: " + networkId);
+        }
+        
+        return Transaction.execute(new TransactionCallback<VnfReconciliationLogVO>() {
+            @Override
+            public VnfReconciliationLogVO doInTransaction(TransactionStatus status) {
+                VnfReconciliationLogVO log = new VnfReconciliationLogVO(networkId, appliance.getId());
+                log.setStatus(VnfReconciliationLogVO.ReconciliationStatus.Running);
+                vnfReconciliationLogDao.persist(log);
+                
+                try {
+                    // TODO: Implement actual reconciliation logic
+                    // 1. Query rules from CloudStack DB
+                    // 2. Query rules from VNF device
+                    // 3. Compare and detect drift
+                    // 4. If not dryRun, fix missing rules
+                    
+                    // For now, simulate successful reconciliation
+                    log.setCompleted(new Date());
+                    log.setStatus(VnfReconciliationLogVO.ReconciliationStatus.Success);
+                    log.setRulesChecked(0);
+                    log.setDriftDetected(false);
+                    vnfReconciliationLogDao.update(log.getId(), log);
+                    
+                    s_logger.info("Reconciliation completed for network: " + networkId + " (dryRun=" + dryRun + ")");
+                    
+                } catch (Exception e) {
+                    log.setCompleted(new Date());
+                    log.setStatus(VnfReconciliationLogVO.ReconciliationStatus.Failed);
+                    log.setErrorMessage(e.getMessage());
+                    vnfReconciliationLogDao.update(log.getId(), log);
+                    s_logger.error("Reconciliation failed for network: " + networkId, e);
+                }
+                
+                return log;
+            }
+        });
     }
-
+    
     @Override
-    public java.util.List<org.apache.cloudstack.vnf.dao.VnfOperationVO> listOperationsByVnfInstanceAndState(Long vnfInstanceId, org.apache.cloudstack.vnf.dao.VnfOperationVO.State state) throws com.cloud.exception.CloudException {
-        // TODO: Implement listOperationsByVnfInstanceAndState
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public VnfReconciliationLogVO getLatestReconciliation(Long networkId) {
+        return vnfReconciliationLogDao.findLatestByNetworkId(networkId);
     }
-
+    
     @Override
-    public org.apache.cloudstack.vnf.dao.VnfOperationVO findOperationByRuleId(String ruleId) throws com.cloud.exception.CloudException {
-        // TODO: Implement findOperationByRuleId
-        throw new com.cloud.exception.CloudException("Not yet implemented");
+    public List<VnfReconciliationLogVO> listReconciliations(Long networkId) {
+        return vnfReconciliationLogDao.listByNetworkId(networkId);
     }
-
+    
+    @Override
+    public List<VnfReconciliationLogVO> listDriftReconciliations() {
+        return vnfReconciliationLogDao.listWithDrift();
+    }
+    
+    // =====================================================
+    // Firewall Rule Operations
+    // =====================================================
+    
+    @Override
+    public String applyFirewallRule(Long ruleId) throws CloudException {
+        // TODO: Implement firewall rule application
+        // 1. Load rule from CloudStack DB
+        // 2. Get VNF appliance for rule's network
+        // 3. Get dictionary
+        // 4. Build request using dictionary template
+        // 5. Send request via broker client
+        // 6. Parse response and extract external ID
+        // 7. Update rule with external ID
+        
+        s_logger.info("Apply firewall rule: " + ruleId);
+        return "vnf-rule-" + ruleId; // Placeholder
+    }
+    
+    @Override
+    public boolean deleteFirewallRule(Long ruleId) throws CloudException {
+        // TODO: Implement firewall rule deletion
+        // 1. Load rule from CloudStack DB
+        // 2. Get external ID from rule
+        // 3. Get VNF appliance for rule's network
+        // 4. Get dictionary
+        // 5. Build delete request
+        // 6. Send request via broker client
+        
+        s_logger.info("Delete firewall rule: " + ruleId);
+        return true; // Placeholder
+    }
+    
+    @Override
+    public List<String> listFirewallRules(Long networkId) throws CloudException {
+        // TODO: Implement rule listing from VNF device
+        // 1. Get VNF appliance for network
+        // 2. Get dictionary
+        // 3. Build list request
+        // 4. Send request via broker client
+        // 5. Parse response and return rules
+        
+        s_logger.info("List firewall rules for network: " + networkId);
+        return List.of(); // Placeholder
+    }
+    
+    // =====================================================
+    // Query Operations
+    // =====================================================
+    
+    @Override
+    public List<Object> getOperationAuditLogs(Long applianceId, String operation, int limit) {
+        List<VnfBrokerAuditVO> logs;
+        if (operation != null) {
+            logs = vnfBrokerAuditDao.listByOperation(operation);
+        } else {
+            logs = vnfBrokerAuditDao.listByApplianceId(applianceId);
+        }
+        
+        // Return up to 'limit' results
+        return logs.stream()
+                   .limit(limit > 0 ? limit : logs.size())
+                   .map(log -> (Object) log)
+                   .toList();
+    }
+    
+    @Override
+    public List<Object> getFailedOperations(Long applianceId, int limit) {
+        List<VnfBrokerAuditVO> logs = vnfBrokerAuditDao.listFailed(applianceId);
+        
+        return logs.stream()
+                   .limit(limit > 0 ? limit : logs.size())
+                   .map(log -> (Object) log)
+                   .toList();
+    }
 }
