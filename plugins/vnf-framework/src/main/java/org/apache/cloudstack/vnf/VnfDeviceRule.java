@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Map;
+
 public class VnfDeviceRule {
     private String externalId;
     private String serviceName;  // "Firewall", "NAT", etc.

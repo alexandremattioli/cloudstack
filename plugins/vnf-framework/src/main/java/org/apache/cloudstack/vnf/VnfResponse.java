@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Map;
+
 public class VnfResponse {
     private int statusCode;
     private String body;

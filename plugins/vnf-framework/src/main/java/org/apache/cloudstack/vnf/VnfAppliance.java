@@ -1,5 +1,8 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Date;
+import com.cloud.vm.VirtualMachine;
+import com.cloud.network.Network;
 public class VnfAppliance {
     private Long id;
     private String uuid;

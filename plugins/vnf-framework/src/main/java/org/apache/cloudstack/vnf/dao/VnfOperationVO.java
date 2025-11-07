@@ -1,88 +1,92 @@
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 package org.apache.cloudstack.vnf.dao;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "vnf_operations")
 public class VnfOperationVO {
     
+    public enum State {
+        PENDING,
+        IN_PROGRESS,
+        COMPLETED,
+        FAILED,
+        CANCELLED
+    }
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
     
-    @Column(name = "operation_id", nullable = false, unique = true)
+    @Column(name = "uuid", length = 40, unique = true, nullable = false)
+    private String uuid;
+    
+    @Column(name = "operation_id", length = 255, unique = true)
     private String operationId;
     
-    @Column(name = "rule_id")
+    @Column(name = "rule_id", length = 255)
     private String ruleId;
+    
+    @Column(name = "vnf_instance_id")
+    private Long vnfInstanceId;
     
     @Column(name = "vnf_appliance_id")
     private Long vnfApplianceId;
     
-    @Column(name = "operation_type")
+    @Column(name = "operation_type", length = 50)
     private String operationType;
     
-    @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private State state;
     
-    @Column(name = "created")
-    private Date created;
-    
-    @Column(name = "completed")
-    private Date completed;
+    @Column(name = "error_code", length = 50)
+    private String errorCode;
     
     @Column(name = "error_message", length = 1024)
     private String errorMessage;
     
-    // Getters and Setters
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
+    private Date createdAt;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "started_at")
+    private Date startedAt;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "completed_at")
+    private Date completedAt;
+    
+    // Getters
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
+    public String getUuid() { return uuid; }
     public String getOperationId() { return operationId; }
-    public void setOperationId(String operationId) { this.operationId = operationId; }
-    
     public String getRuleId() { return ruleId; }
-    public void setRuleId(String ruleId) { this.ruleId = ruleId; }
-    
+    public Long getVnfInstanceId() { return vnfInstanceId; }
     public Long getVnfApplianceId() { return vnfApplianceId; }
-    public void setVnfApplianceId(Long vnfApplianceId) { this.vnfApplianceId = vnfApplianceId; }
-    
     public String getOperationType() { return operationType; }
-    public void setOperationType(String operationType) { this.operationType = operationType; }
-    
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    
-    public Date getCreated() { return created; }
-    public void setCreated(Date created) { this.created = created; }
-    
-    public Date getCompleted() { return completed; }
-    public void setCompleted(Date completed) { this.completed = completed; }
-    
+    public State getState() { return state; }
+    public String getErrorCode() { return errorCode; }
     public String getErrorMessage() { return errorMessage; }
+    public Date getCreatedAt() { return createdAt; }
+    public Date getStartedAt() { return startedAt; }
+    public Date getCompletedAt() { return completedAt; }
+    
+    // Setters
+    public void setId(Long id) { this.id = id; }
+    public void setUuid(String uuid) { this.uuid = uuid; }
+    public void setOperationId(String operationId) { this.operationId = operationId; }
+    public void setRuleId(String ruleId) { this.ruleId = ruleId; }
+    public void setVnfInstanceId(Long vnfInstanceId) { this.vnfInstanceId = vnfInstanceId; }
+    public void setVnfApplianceId(Long vnfApplianceId) { this.vnfApplianceId = vnfApplianceId; }
+    public void setOperationType(String operationType) { this.operationType = operationType; }
+    public void setState(State state) { this.state = state; }
+    public void setErrorCode(String errorCode) { this.errorCode = errorCode; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+    public void setStartedAt(Date startedAt) { this.startedAt = startedAt; }
+    public void setCompletedAt(Date completedAt) { this.completedAt = completedAt; }
 }

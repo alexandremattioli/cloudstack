@@ -1,5 +1,13 @@
 package org.apache.cloudstack.vnf;
 
+import com.cloud.exception.CloudException;
+import com.cloud.network.Network;
+
+import com.cloud.network.element.NetworkElement;
+import com.cloud.network.element.FirewallServiceProvider;
+import com.cloud.network.element.PortForwardingServiceProvider;
+import com.cloud.network.element.StaticNatServiceProvider;
+import com.cloud.network.element.LoadBalancingServiceProvider;
 public interface VnfProvider extends NetworkElement,
                                       FirewallServiceProvider,
                                       PortForwardingServiceProvider,

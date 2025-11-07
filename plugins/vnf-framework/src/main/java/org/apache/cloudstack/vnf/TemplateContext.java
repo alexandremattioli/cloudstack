@@ -1,5 +1,8 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Map;
+import java.util.HashMap;
+
 public class TemplateContext {
     private Map<String, Object> variables;
     public TemplateContext() {

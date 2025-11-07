@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import com.cloud.exception.CloudException;
+
 public interface VnfDictionaryManager {
     /**
      * Load and parse a YAML dictionary

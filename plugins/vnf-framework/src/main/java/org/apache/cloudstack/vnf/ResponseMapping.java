@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Map;
+
 public class ResponseMapping {
     private int successCode = 200;
     private String idPath;           // JSONPath to extract ID

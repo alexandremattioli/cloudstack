@@ -1,5 +1,10 @@
 package org.apache.cloudstack.vnf;
 
+import com.cloud.network.rules.FirewallRule;
+import com.cloud.network.rules.PortForwardingRule;
+
+import com.cloud.network.lb.LoadBalancingRule;
+
 public interface VnfRequestBuilder {
     /**
      * Build a request for a firewall rule operation

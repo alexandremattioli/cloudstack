@@ -1,6 +1,7 @@
-package org.apache.cloudstack.network.vnf.impl;
+package org.apache.cloudstack.vnf.dictionary;
 
 import org.apache.cloudstack.vnf.VnfDictionary;
+import org.apache.cloudstack.vnf.VnfDictionaryManager;
 import org.apache.cloudstack.vnf.AccessConfig;
 import org.apache.cloudstack.vnf.ServiceDefinition;
 import org.apache.cloudstack.vnf.OperationDefinition;

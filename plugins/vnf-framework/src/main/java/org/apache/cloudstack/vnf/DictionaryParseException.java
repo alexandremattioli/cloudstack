@@ -1,5 +1,8 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.List;
+
+import com.cloud.exception.CloudException;
 public class DictionaryParseException extends CloudException {
     private List<String> errors;
     public DictionaryParseException(String message) {

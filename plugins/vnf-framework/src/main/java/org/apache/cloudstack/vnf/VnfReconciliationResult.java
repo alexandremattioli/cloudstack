@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.List;
+
 public class VnfReconciliationResult {
     private boolean success;
     private boolean driftDetected;

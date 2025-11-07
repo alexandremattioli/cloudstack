@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Map;
+
 public class VnfRequest {
     private String targetIp;
     private String protocol;

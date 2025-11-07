@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Map;
+
 public class OperationDefinition {
     private String method;       // HTTP method or "SSH"
     private String endpoint;     // URL path or CLI command

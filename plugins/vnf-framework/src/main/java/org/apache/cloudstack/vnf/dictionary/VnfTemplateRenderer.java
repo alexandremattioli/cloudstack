@@ -1,6 +1,6 @@
-package org.apache.cloudstack.network.vnf.impl;
+package org.apache.cloudstack.vnf.dictionary;
 
-import org.apache.cloudstack.network.vnf.*;
+import org.apache.cloudstack.vnf.*;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 

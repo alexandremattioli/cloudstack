@@ -1,5 +1,9 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.ArrayList;
+
+import java.util.List;
+
 public class DictionaryValidationResult {
     private boolean valid;
     private List<String> errors;

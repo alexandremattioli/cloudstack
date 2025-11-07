@@ -1,5 +1,7 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Map;
+
 public class ServiceDefinition {
     private String name;
     private Map<String, OperationDefinition> operations;

@@ -1,8 +1,5 @@
 // Licensed to the Apache Software Foundation (ASF) under one
 
-import com.cloud.utils.component.Configurable;
-import org.apache.cloudstack.config.Configuration;
-import org.apache.cloudstack.framework.config.ConfigKey;
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -20,6 +17,10 @@ import org.apache.cloudstack.framework.config.ConfigKey;
 // under the License.
 
 package org.apache.cloudstack.vnf;
+
+import org.apache.cloudstack.framework.config.Configurable;
+import org.apache.cloudstack.config.Configuration;
+import org.apache.cloudstack.framework.config.ConfigKey;
 
 public class VnfFrameworkConfig implements Configurable {
     public static final ConfigKey<Boolean> VnfFrameworkEnabled = new ConfigKey<>(

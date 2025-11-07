@@ -1,5 +1,8 @@
 package org.apache.cloudstack.vnf;
 
+import java.util.Date;
+import java.util.Map;
+
 public class VnfDictionary {
     private String id;
     private String uuid;
