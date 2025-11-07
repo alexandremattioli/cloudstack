@@ -28,6 +28,8 @@ import org.apache.cloudstack.vnf.VnfReconciliationResult;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Component;
+import org.apache.cloudstack.vnf.dictionary.VnfDictionaryParser;
+import org.apache.cloudstack.vnf.dictionary.VnfDictionaryParser.ParsedDictionary;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -56,6 +58,10 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
     
     @Inject
     private VnfBrokerAuditDao vnfBrokerAuditDao;
+    @Inject
+    private VnfInstanceDao vnfInstanceDao;
+
+    private final VnfDictionaryParser dictionaryParser = new VnfDictionaryParser();
 
     // ==================================================================
     // Dictionary Management
@@ -65,8 +71,33 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
     public VnfDictionaryResponse uploadVnfDictionary(UploadVnfDictionaryCmd cmd) throws CloudException {
         LOGGER.info("uploadVnfDictionary called - implementing per Methodology step 7");
         // TODO: Step 7 - Parse YAML, validate, store in DB
-        throw new CloudException("Not yet implemented - awaiting Step 7 (business logic)");
-    }
+            LOGGER.info("uploadVnfDictionary called vendor=" + cmd.getVendor());
+            ParsedDictionary parsed = dictionaryParser.parse(cmd.getDictionary());
+            // Simple idempotent lookup by name (vendor + version)
+            String name = cmd.getVendor() + ":" + cmd.getVersion();
+            VnfDictionaryVO existing = vnfDictionaryDao.findByUuid(name); // temporary reuse of findByUuid for simplicity
+            if (existing != null && !cmd.getOverwrite()) {
+                throw new CloudException("Dictionary already exists (use overwrite=true)");
+            }
+            VnfDictionaryVO vo = existing != null ? existing : new VnfDictionaryVO(null, null, name, cmd.getDictionary());
+            vo.setVendor(parsed.vendor);
+            vo.setProduct(parsed.product);
+            vo.setSchemaVersion(parsed.version);
+            if (existing == null) {
+                vnfDictionaryDao.persist(vo);
+            } else {
+                vo.setUpdated(new java.util.Date());
+                vnfDictionaryDao.update(vo.getId(), vo);
+            }
+            VnfDictionaryResponse resp = new VnfDictionaryResponse();
+            resp.setId(vo.getUuid());
+            resp.setVendor(vo.getVendor());
+            resp.setVersion(vo.getSchemaVersion());
+            resp.setUploaded(String.valueOf(vo.getCreated()));
+            resp.setSize((long) cmd.getDictionary().getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
+            resp.setOperations(0); // placeholder until we parse operations section
+            return resp;
+        }
 
     @Override
     public List<VnfDictionaryResponse> listVnfDictionaries(ListVnfDictionariesCmd cmd) {
@@ -141,7 +172,9 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
     public List<org.apache.cloudstack.vnf.entity.VnfOperationVO> listAllOperations(ListVnfOperationsCmd cmd) {
         LOGGER.info("listAllOperations called - implementing per Methodology step 7");
         // TODO: Step 7 - Query operations with filters
-        return new ArrayList<>();
+            LOGGER.info("listAllOperations called");
+            // Minimal viable implementation: return all operations (no filters yet)
+            return vnfOperationDao.listAll();
     }
 
     @Override
@@ -180,6 +213,11 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
     public VnfInstanceVO getVnfInstance(Long vnfInstanceId) throws CloudException {
         LOGGER.info("getVnfInstance called - implementing per Methodology step 7");
         // TODO: Step 7 - Query instance
-        throw new CloudException("Not yet implemented - awaiting Step 7 (business logic)");
+            LOGGER.info("getVnfInstance called id=" + vnfInstanceId);
+            VnfInstanceVO vo = vnfInstanceDao.findById(vnfInstanceId);
+            if (vo == null) {
+                throw new CloudException("VNF instance not found: " + vnfInstanceId);
+            }
+            return vo;
     }
 }
