@@ -340,4 +340,16 @@ public class VnfServiceImpl extends ManagerBase implements VnfService {
         throw new com.cloud.exception.CloudException("Not yet implemented");
     }
 
+    @Override
+    public org.apache.cloudstack.vnf.VnfDictionary uploadDictionary(String dictionaryData, String vendor, Long accountId) throws com.cloud.exception.CloudException {
+        // TODO: Implement uploadDictionary
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
+    @Override
+    public java.util.List<org.apache.cloudstack.vnf.VnfDictionary> listDictionaries(Long accountId) throws com.cloud.exception.CloudException {
+        // TODO: Implement listDictionaries
+        throw new com.cloud.exception.CloudException("Not yet implemented");
+    }
+
 }

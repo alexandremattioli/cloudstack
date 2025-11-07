@@ -305,8 +305,14 @@ public class VnfNetworkElement implements NetworkElement, FirewallServiceProvide
     }
 
     @Override
-    public com.cloud.network.element.NetworkElement.Provider getProvider() {
-        return com.cloud.network.element.NetworkElement.Provider.VirtualRouter; // TODO: Create VNF provider
+    public com.cloud.network.Network.Provider getProvider() {
+        return com.cloud.network.Network.Provider.VirtualRouter; // TODO: Create VNF provider
+    }
+
+    @Override
+    public java.util.Map<com.cloud.network.Network.Service, java.util.Map<com.cloud.network.Network.Capability, String>> getCapabilities() {
+        // VNF provides firewall, port forwarding, static NAT, load balancing
+        return new java.util.HashMap<>(); // TODO: Implement capabilities
     }
 
 }
