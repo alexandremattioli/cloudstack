@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  csintegration:
+    build: .
+    ports:
+      - "8600:8600"
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      - CSINT_LOG_LEVEL=INFO
+      - CSINT_CLOUDSTACK__ENDPOINT=${CS_ENDPOINT:-}
+      - CSINT_CLOUDSTACK__API_KEY=${CS_API_KEY:-}
+      - CSINT_CLOUDSTACK__SECRET_KEY=${CS_SECRET_KEY:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8600/health').raise_for_status()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

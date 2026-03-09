@@ -1,0 +1,63 @@
+# CloudStack Integration Framework — Default Configuration
+#
+# Override any setting via environment variables with the CSINT_ prefix.
+# Use double underscores for nesting: CSINT_CLOUDSTACK__ENDPOINT=http://...
+
+host: "0.0.0.0"
+port: 8600
+
+# API key for authenticating requests (empty = auth disabled)
+api_key: ""
+
+log_level: "INFO"
+
+cors_origins:
+  - "*"
+
+event_history_size: 1000
+
+# Additional directories to scan for plugin files
+plugin_paths: []
+
+# CloudStack management server connection
+cloudstack:
+  endpoint: ""          # e.g. http://cloudstack.example.com:8080/client
+  api_key: ""
+  secret_key: ""
+  verify_ssl: true
+  timeout: 60.0
+
+# How the framework receives CloudStack events
+event_listener:
+  # Options: webhook, polling, kafka, rabbitmq
+  type: "webhook"
+  poll_interval: 10.0
+
+  kafka:
+    bootstrap_servers: "localhost:9092"
+    topic: "cloudstack-events"
+    group_id: "csintegration"
+
+  rabbitmq:
+    amqp_url: "amqp://guest:guest@localhost/"
+    exchange: "cloudstack-events"
+    queue: "csintegration"
+
+# Per-plugin configuration (keyed by plugin name)
+plugins:
+  kubernetes:
+    kubeconfig_path: ""
+    context: ""
+    namespace: "default"
+    auto_register_nodes: true
+
+  terraform:
+    workspace: "default"
+    auto_import: false
+    resource_prefix: "cloudstack_"
+
+  prometheus:
+    metric_prefix: "csintegration"
+
+  webhook-relay:
+    targets: []
