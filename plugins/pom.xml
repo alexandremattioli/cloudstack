@@ -94,8 +94,9 @@
         <module>hypervisors/xenserver</module>
 
         <module>integrations/cloudian</module>
-        <module>integrations/prometheus</module>
+        <module>integrations/framework</module>
         <module>integrations/kubernetes-service</module>
+        <module>integrations/prometheus</module>
 
         <module>metrics</module>
 
